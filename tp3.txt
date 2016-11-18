@@ -1,0 +1,33 @@
+/*
+Table creation from prenoms.csv
+*/
+
+CREATE TABLE IF NOT EXISTS prenoms(
+        name STRING,
+        sex STRING,
+        origins array<string>,
+        version DOUBLE)
+    COMMENT 'List of firstname and origins and sex'
+    ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY '\073'
+    COLLECTION ITEMS TERMINATED by ','
+    STORED AS TEXTFILE
+    location '/user/rmercier/hivedb';
+
+/*
+Q1 :
+*/
+
+SELECT origin, COUNT(DISTINCT p.name) FROM prenoms p LATERAL VIEW EXPLODE(p.origins) originList as origin GROUP BY origin;
+
+/*
+Q2 :
+*/
+
+SELECT size(origins) , COUNT(*) FROM prenoms GROUP BY size(origins)
+
+/*
+Q3 :
+*/
+
+SELECT sex, count(distinct name), (count(distinct name) * 100 / sum(count (distinct name)) OVER()) FROM prenoms GROUP BY sex;
